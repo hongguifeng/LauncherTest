@@ -47,15 +47,15 @@ public class MainActivity extends AppCompatActivity
 
         mTextView.setOnLongClickListener(this);
         int i = 0;
-        for(int x=0; x<4; x++){
-            for(int y=0; y<3; y++){
+        for(int x=0; x<3; x++){
+            for(int y=0; y<4; y++){
                 TextView tv= new TextView(this);
                 Drawable da = getDrawable(R.mipmap.ic_launcher_round);
                 tv.setText(String.valueOf(i));
                 da.setBounds(0, 0, da.getIntrinsicWidth(), da.getIntrinsicHeight());
                 tv.setCompoundDrawables(null,da,null,null);
                 tv.setOnLongClickListener(this);
-                CellLayout.LayoutParams lp = new CellLayout.LayoutParams(x, y, 1, 1);
+                CellLayout.LayoutParams lp = new CellLayout.LayoutParams(y, x, 1, 1);
                 mCellLayout.addViewToCellLayout(tv, i,i, lp, true);
                 i++;
             }
@@ -181,7 +181,15 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onDrop(DragObject dragObject) {
+        float[] f = dragObject.getVisualCenter(null);
+        Log.d(TAG, "onDrop: " + f[0] + " " + f[1]);
 
+        int[] resultSpan = new int[2];
+        int[] targetCell = new int[2];
+        mCellLayout.performReorder( (int)f[0], (int)f[1], 1,
+                1, 1, 1, dragObject.dragView, targetCell, resultSpan, CellLayout.MODE_DRAG_OVER);
+
+        dragObject.dragView.remove();
     }
 
     @Override
@@ -192,13 +200,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onDragOver(DragObject dragObject) {
 //        Log.d(TAG, "onDragOver: " + dragObject);
-        Point p = dragObject.dragView.getDragVisualizeOffset();
-        Log.d(TAG, "onDrop: " + p.x + " " + p.y);
+        float[] f = dragObject.getVisualCenter(null);
+        Log.d(TAG, "onDrop: " + f[0] + " " + f[1]);
 
         int[] resultSpan = new int[2];
         int[] targetCell = new int[2];
-        mCellLayout.performReorder(p.x, p.y, 1,
-                1, 1, 1, dragObject.dragView, targetCell, resultSpan, CellLayout.MODE_ON_DROP);
+        mCellLayout.performReorder( (int)f[0], (int)f[1], 1,
+                1, 1, 1, dragObject.dragView, targetCell, resultSpan, CellLayout.MODE_DRAG_OVER);
 
 //        dragObject.dragView.remove();
     }
