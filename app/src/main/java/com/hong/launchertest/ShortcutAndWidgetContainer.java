@@ -46,8 +46,6 @@ public class ShortcutAndWidgetContainer extends ViewGroup {
 
 //    private Launcher mLauncher;
 
-    private boolean mInvertIfRtl = false;
-
     public ShortcutAndWidgetContainer(Context context) {
         super(context);
 //        mLauncher = (Launcher) context;
@@ -115,11 +113,6 @@ public class ShortcutAndWidgetContainer extends ViewGroup {
     public void setupLp(CellLayout.LayoutParams lp) {
         lp.setup(mCellWidth, mCellHeight, mWidthGap, mHeightGap, invertLayoutHorizontally(),
                 mCountX);
-    }
-
-    // Set whether or not to invert the layout horizontally if the layout is in RTL mode.
-    public void setInvertIfRtl(boolean invert) {
-        mInvertIfRtl = invert;
     }
 
     public void setIsHotseat(boolean isHotseat) {

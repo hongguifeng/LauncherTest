@@ -211,6 +211,7 @@ public class CellLayout extends ViewGroup {
                 (mInterceptTouchListener != null && mInterceptTouchListener.onTouch(this, ev))) {
             return true;
         }
+        Log.d(TAG, "onInterceptTouchEvent: ");
         return false;
     }
 
@@ -221,7 +222,7 @@ public class CellLayout extends ViewGroup {
         // the home screen mode, however, once in overview mode stylus button press should be
         // enabled to allow rearranging the different home screens. So check what mode
         // the workspace is in, and only perform stylus button presses while in overview mode.
-
+        Log.d(TAG, "onTouchEvent: " + handled);
         return handled;
     }
 
@@ -249,11 +250,6 @@ public class CellLayout extends ViewGroup {
         mShortcutsAndWidgets.setCellDimensions(mCellWidth, mCellHeight, mWidthGap, mHeightGap,
                 mCountX, mCountY);
         requestLayout();
-    }
-
-    // Set whether or not to invert the layout horizontally if the layout is in RTL mode.
-    public void setInvertIfRtl(boolean invert) {
-        mShortcutsAndWidgets.setInvertIfRtl(invert);
     }
 
     public void setDropPending(boolean pending) {

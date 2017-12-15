@@ -76,9 +76,6 @@ public class DragController {
     /** Whether or not we're dragging. */
     private boolean mDragging;
 
-    /** Whether or not this is an accessible drag operation */
-    private boolean mIsAccessibleDrag;
-
     /** X coordinate of the down event. */
     private int mMotionDownX;
 
@@ -152,7 +149,7 @@ public class DragController {
         mLauncher = context;
         mDragLayer = dragLayer;
         mHandler = new Handler();
-        mScrollZone = r.getDimensionPixelSize(R.dimen.scroll_zone);
+        mScrollZone = 0;//r.getDimensionPixelSize(R.dimen.scroll_zone);
         mVelocityTracker = VelocityTracker.obtain();
     }
 
@@ -181,7 +178,7 @@ public class DragController {
                 + (int) ((initialDragViewScale * bmp.getHeight() - bmp.getHeight()) / 2);
 
         startDrag(bmp, dragLayerX, dragLayerY, source, dragInfo, dragAction, null,
-                null, initialDragViewScale, false);
+                null, initialDragViewScale);
 
         if (dragAction == DRAG_ACTION_MOVE) {
             v.setVisibility(View.GONE);
@@ -201,11 +198,10 @@ public class DragController {
      *        {@link #DRAG_ACTION_COPY}
      * @param dragRegion Coordinates within the bitmap b for the position of item being dragged.
      *          Makes dragging feel more precise, e.g. you can clip out a transparent border
-     * @param accessible whether this drag should occur in accessibility mode
      */
     public DragView startDrag(Bitmap b, int dragLayerX, int dragLayerY,
             DragSource source, Object dragInfo, int dragAction, Point dragOffset, Rect dragRegion,
-            float initialDragViewScale, boolean accessible) {
+            float initialDragViewScale) {
         if (PROFILE_DRAWING_DURING_DRAG) {
             android.os.Debug.startMethodTracing("Launcher");
         }
@@ -228,20 +224,14 @@ public class DragController {
         final int dragRegionTop = dragRegion == null ? 0 : dragRegion.top;
 
         mDragging = true;
-        mIsAccessibleDrag = accessible;
 
         mDragObject = new DropTarget.DragObject();
 
         mDragObject.dragComplete = false;
-        if (mIsAccessibleDrag) {
-            // For an accessible drag, we assume the view is being dragged from the center.
-            mDragObject.xOffset = b.getWidth() / 2;
-            mDragObject.yOffset = b.getHeight() / 2;
-            mDragObject.accessibleDrag = true;
-        } else {
-            mDragObject.xOffset = mMotionDownX - (dragLayerX + dragRegionLeft);
-            mDragObject.yOffset = mMotionDownY - (dragLayerY + dragRegionTop);
-        }
+
+        mDragObject.xOffset = mMotionDownX - (dragLayerX + dragRegionLeft);
+        mDragObject.yOffset = mMotionDownY - (dragLayerY + dragRegionTop);
+
 
         mDragObject.dragSource = source;
         mDragObject.dragInfo = dragInfo;
@@ -359,7 +349,6 @@ public class DragController {
     private void endDrag() {
         if (mDragging) {
             mDragging = false;
-            mIsAccessibleDrag = false;
             clearScrollRunnable();
             boolean isDeferred = false;
             if (mDragObject.dragView != null) {
@@ -431,11 +420,7 @@ public class DragController {
             Log.d(TAG, "DragController.onInterceptTouchEvent " + ev + " mDragging="
                     + mDragging);
         }
-
-        if (mIsAccessibleDrag) {
-            return false;
-        }
-
+        Log.d(TAG, "onInterceptTouchEvent: ");
         // Update the velocity tracker
         acquireVelocityTrackerAndAddMovement(ev);
 
@@ -540,37 +525,38 @@ public class DragController {
         final int forwardDirection = SCROLL_LEFT;
         final int backwardsDirection = SCROLL_RIGHT;
 
-        if (x < mScrollZone) {
-            if (mScrollState == SCROLL_OUTSIDE_ZONE) {
-                mScrollState = SCROLL_WAITING_IN_ZONE;
-                if (mDragScroller.onEnterScrollArea(x, y, forwardDirection)) {
-                    dragLayer.onEnterScrollArea(forwardDirection);
-                    mScrollRunnable.setDirection(forwardDirection);
-                    mHandler.postDelayed(mScrollRunnable, delay);
-                }
-            }
-        } else if (x > mScrollView.getWidth() - mScrollZone) {
-            if (mScrollState == SCROLL_OUTSIDE_ZONE) {
-                mScrollState = SCROLL_WAITING_IN_ZONE;
-                if (mDragScroller.onEnterScrollArea(x, y, backwardsDirection)) {
-                    dragLayer.onEnterScrollArea(backwardsDirection);
-                    mScrollRunnable.setDirection(backwardsDirection);
-                    mHandler.postDelayed(mScrollRunnable, delay);
-                }
-            }
-        } else {
-            clearScrollRunnable();
-        }
+//        if (x < mScrollZone) {
+//            if (mScrollState == SCROLL_OUTSIDE_ZONE) {
+//                mScrollState = SCROLL_WAITING_IN_ZONE;
+//                if (mDragScroller.onEnterScrollArea(x, y, forwardDirection)) {
+//                    dragLayer.onEnterScrollArea(forwardDirection);
+//                    mScrollRunnable.setDirection(forwardDirection);
+//                    mHandler.postDelayed(mScrollRunnable, delay);
+//                }
+//            }
+//        } else if (x > mScrollView.getWidth() - mScrollZone) {
+//            if (mScrollState == SCROLL_OUTSIDE_ZONE) {
+//                mScrollState = SCROLL_WAITING_IN_ZONE;
+//                if (mDragScroller.onEnterScrollArea(x, y, backwardsDirection)) {
+//                    dragLayer.onEnterScrollArea(backwardsDirection);
+//                    mScrollRunnable.setDirection(backwardsDirection);
+//                    mHandler.postDelayed(mScrollRunnable, delay);
+//                }
+//            }
+//        } else {
+//            clearScrollRunnable();
+//        }
     }
 
     /**
      * Call this from a drag source view.
      */
     public boolean onTouchEvent(MotionEvent ev) {
-        if (!mDragging || mIsAccessibleDrag) {
+        if (!mDragging) {
             return false;
         }
 
+//        Log.d(TAG, "onTouchEvent: ");
         // Update the velocity tracker
         acquireVelocityTrackerAndAddMovement(ev);
 
@@ -630,7 +616,7 @@ public class DragController {
     private void drop(float x, float y) {
         final int[] coordinates = mCoordinatesTemp;
         final DropTarget dropTarget = findDropTarget((int) x, (int) y, coordinates);
-
+        Log.d(TAG, "drop: " + dropTarget);
         mDragObject.x = coordinates[0];
         mDragObject.y = coordinates[1];
         boolean accepted = false;
@@ -642,7 +628,7 @@ public class DragController {
                 accepted = true;
             }
         }
-        mDragObject.dragSource.onDropCompleted((View) dropTarget, mDragObject, false, accepted);
+//        mDragObject.dragSource.onDropCompleted((View) dropTarget, mDragObject, false, accepted);
     }
 
     private DropTarget findDropTarget(int x, int y, int[] dropCoordinates) {
@@ -656,6 +642,7 @@ public class DragController {
                 continue;
 
             target.getHitRectRelativeToDragLayer(r);
+//            Log.d(TAG, "findDropTarget: " + r);
 
             mDragObject.x = x;
             mDragObject.y = y;
@@ -663,7 +650,7 @@ public class DragController {
 
                 dropCoordinates[0] = x;
                 dropCoordinates[1] = y;
-                mDragLayer.mapCoordInSelfToDescendent((View) target, dropCoordinates);
+//                mDragLayer.mapCoordInSelfToDescendent((View) target, dropCoordinates);
 
                 return target;
             }

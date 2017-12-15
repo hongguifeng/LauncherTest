@@ -28,6 +28,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -47,6 +48,8 @@ import java.util.ArrayList;
  * A ViewGroup that coordinates dragging across its descendants
  */
 public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChangeListener {
+
+    private static final String TAG = "DragLayer";
 
     public static final int ANIMATION_END_DISAPPEAR = 0;
     public static final int ANIMATION_END_REMAIN_VISIBLE = 2;
@@ -163,7 +166,7 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         int action = ev.getAction();
-
+//        Log.d(TAG, "onInterceptTouchEvent: ");
         if (action == MotionEvent.ACTION_DOWN) {
             if (handleTouchDown(ev, true)) {
                 return true;
@@ -185,7 +188,7 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
 
         int x = (int) ev.getX();
         int y = (int) ev.getY();
-
+//        Log.d(TAG, "onTouchEvent: " + ev);
         if (mBlockTouches) {
             return true;
         }
