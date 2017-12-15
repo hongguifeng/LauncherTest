@@ -14,6 +14,23 @@
         <attr name="maxGap" format="dimension" />
     </declare-styleable>
 
+    <!-- Dragging -->
+    <!-- Drag padding to add to the bottom of drop targets -->
+    <dimen name="drop_target_drag_padding">14dp</dimen>
+    <dimen name="drop_target_text_size">14sp</dimen>
+
+    <!-- the area at the edge of the screen that makes the workspace go left
+         or right while you're dragging. -->
+    <dimen name="scroll_zone">20dp</dimen>
+
+    <!-- When dragging an item, how much bigger (fixed dps) the dragged view
+         should be. If 0, it will not be scaled at all. -->
+    <dimen name="dragViewScale">0dp</dimen>
+
+    <!-- Elevation for the drag view. It should be larger than elevation of all other drag sources
+         and drop targets like all-apps and folders -->
+    <dimen name="drag_elevation">30dp</dimen>
+
 
     <!-- Shadows and outlines -->
     <dimen name="blur_size_thin_outline">1dp</dimen>

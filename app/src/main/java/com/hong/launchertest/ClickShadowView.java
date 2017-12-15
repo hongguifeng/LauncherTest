@@ -88,25 +88,25 @@ public class ClickShadowView extends View {
      * Aligns the shadow with {@param view}
      * @param viewParent immediate parent of {@param view}. It must be a sibling of this view.
      */
-    public void alignWithIconView(BubbleTextView view, ViewGroup viewParent) {
-        float leftShift = view.getLeft() + viewParent.getLeft() - getLeft();
-        float topShift = view.getTop() + viewParent.getTop() - getTop();
-        int iconWidth = view.getRight() - view.getLeft();
-        int iconHSpace = iconWidth - view.getCompoundPaddingRight() - view.getCompoundPaddingLeft();
-        float drawableWidth = view.getIcon().getBounds().width();
-
-        setTranslationX(leftShift
-                + viewParent.getTranslationX()
-                + view.getCompoundPaddingLeft() * view.getScaleX()
-                + (iconHSpace - drawableWidth) * view.getScaleX() / 2  /* drawable gap */
-                + iconWidth * (1 - view.getScaleX()) / 2  /* gap due to scale */
-                - mShadowPadding  /* extra shadow size */
-                );
-        setTranslationY(topShift
-                + viewParent.getTranslationY()
-                + view.getPaddingTop() * view.getScaleY()  /* drawable gap */
-                + view.getHeight() * (1 - view.getScaleY()) / 2  /* gap due to scale */
-                - mShadowPadding  /* extra shadow size */
-                );
-    }
+//    public void alignWithIconView(BubbleTextView view, ViewGroup viewParent) {
+//        float leftShift = view.getLeft() + viewParent.getLeft() - getLeft();
+//        float topShift = view.getTop() + viewParent.getTop() - getTop();
+//        int iconWidth = view.getRight() - view.getLeft();
+//        int iconHSpace = iconWidth - view.getCompoundPaddingRight() - view.getCompoundPaddingLeft();
+//        float drawableWidth = view.getIcon().getBounds().width();
+//
+//        setTranslationX(leftShift
+//                + viewParent.getTranslationX()
+//                + view.getCompoundPaddingLeft() * view.getScaleX()
+//                + (iconHSpace - drawableWidth) * view.getScaleX() / 2  /* drawable gap */
+//                + iconWidth * (1 - view.getScaleX()) / 2  /* gap due to scale */
+//                - mShadowPadding  /* extra shadow size */
+//                );
+//        setTranslationY(topShift
+//                + viewParent.getTranslationY()
+//                + view.getPaddingTop() * view.getScaleY()  /* drawable gap */
+//                + view.getHeight() * (1 - view.getScaleY()) / 2  /* gap due to scale */
+//                - mShadowPadding  /* extra shadow size */
+//                );
+//    }
 }
