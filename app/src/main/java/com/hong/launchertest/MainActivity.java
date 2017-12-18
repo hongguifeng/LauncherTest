@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity
     private DragLayer mDragLayer;
     private TextView mTextView;
     private CellLayout mCellLayout;
+    private Bitmap mOutlineBitmap;
 
     private DragController mDragController;
 
@@ -66,8 +67,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onLongClick(View v) {
 
+        mCellLayout.prepareChildForDrag(v);
+
         AtomicInteger padding = new AtomicInteger(2);
         final Bitmap b = createDragBitmap(v, padding);
+        mOutlineBitmap = b;
 
         CellLayout.LayoutParams lp = (CellLayout.LayoutParams)v.getLayoutParams();
         Log.d(TAG, "onLongClick: " + lp.x + " " + lp.y);
@@ -207,6 +211,11 @@ public class MainActivity extends AppCompatActivity
         int[] targetCell = new int[2];
         mCellLayout.performReorder( (int)f[0], (int)f[1], 1,
                 1, 1, 1, dragObject.dragView, targetCell, resultSpan, CellLayout.MODE_DRAG_OVER);
+
+        mCellLayout.visualizeDropLocation(null, mOutlineBitmap,
+                1, 1,
+                targetCell[0], targetCell[1], resultSpan[0], resultSpan[1], false,
+                new Point(), new Rect());
 
 //        dragObject.dragView.remove();
     }

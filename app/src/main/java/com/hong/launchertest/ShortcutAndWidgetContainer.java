@@ -178,17 +178,6 @@ public class ShortcutAndWidgetContainer extends ViewGroup {
                 int childLeft = lp.x;
                 int childTop = lp.y;
                 child.layout(childLeft, childTop, childLeft + lp.width, childTop + lp.height);
-
-                if (lp.dropped) {
-                    lp.dropped = false;
-
-                    final int[] cellXY = mTmpCellXY;
-                    getLocationOnScreen(cellXY);
-                    mWallpaperManager.sendWallpaperCommand(getWindowToken(),
-                            WallpaperManager.COMMAND_DROP,
-                            cellXY[0] + childLeft + lp.width / 2,
-                            cellXY[1] + childTop + lp.height / 2, 0, null);
-                }
             }
         }
     }

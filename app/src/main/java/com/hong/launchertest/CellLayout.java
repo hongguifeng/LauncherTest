@@ -83,11 +83,6 @@ public class CellLayout extends ViewGroup {
 
     private OnTouchListener mInterceptTouchListener;
 
-    private float mBackgroundAlpha;
-
-    private static final int BACKGROUND_ACTIVATE_DURATION = 120;
-    private final TransitionDrawable mBackground;
-
     // These values allow a fixed measurement to be set on the CellLayout.
     private int mFixedWidth = -1;
     private int mFixedHeight = -1;
@@ -99,8 +94,6 @@ public class CellLayout extends ViewGroup {
     @Thunk float mDragOutlineAlpha;
     private Bitmap mOutlineBitmap;
     private final Paint mDragOutlinePaint = new Paint();
-
-    private final ClickShadowView mTouchFeedbackView;
 
     private boolean mItemPlacementDirty = false;
 
@@ -178,10 +171,6 @@ public class CellLayout extends ViewGroup {
 
         final Resources res = getResources();
 
-        mBackground = (TransitionDrawable) res.getDrawable(R.drawable.bg_screenpanel);
-        mBackground.setCallback(this);
-        mBackground.setAlpha((int) (mBackgroundAlpha * 255));
-
         mReorderPreviewAnimationMagnitude = (REORDER_PREVIEW_MAGNITUDE *
                 128);
 
@@ -193,9 +182,6 @@ public class CellLayout extends ViewGroup {
         mShortcutsAndWidgets.setCellDimensions(mCellWidth, mCellHeight, mWidthGap, mHeightGap,
                 mCountX, mCountY);
 
-
-        mTouchFeedbackView = new ClickShadowView(context);
-        addView(mTouchFeedbackView);
         addView(mShortcutsAndWidgets);
     }
 
@@ -271,14 +257,7 @@ public class CellLayout extends ViewGroup {
     void setIsDragOverlapping(boolean isDragOverlapping) {
         if (mIsDragOverlapping != isDragOverlapping) {
             mIsDragOverlapping = isDragOverlapping;
-            if (mIsDragOverlapping) {
-                mBackground.startTransition(BACKGROUND_ACTIVATE_DURATION);
-            } else {
-                if (mBackgroundAlpha > 0f) {
-                    mBackground.reverseTransition(BACKGROUND_ACTIVATE_DURATION);
-                } else {
-                    mBackground.resetTransition();
-                }
+            if (!mIsDragOverlapping) {
                 mOutlineBitmap = null;
             }
 
@@ -296,14 +275,6 @@ public class CellLayout extends ViewGroup {
             return;
         }
 
-        // When we're large, we are either drawn in a "hover" state (ie when dragging an item to
-        // a neighboring page) or with just a normal background (if backgroundAlpha > 0.0f)
-        // When we're small, we are either drawn normally or in the "accepts drops" state (during
-        // a drag). However, we also drag the mini hover background *over* one of those two
-        // backgrounds
-        if (mBackgroundAlpha > 0.0f) {
-            mBackground.draw(canvas);
-        }
 
         if(mOutlineBitmap != null) {
             canvas.drawBitmap(mOutlineBitmap, null, mTempRect, mDragOutlinePaint);
@@ -609,13 +580,6 @@ public class CellLayout extends ViewGroup {
             mHeightGap = mOriginalHeightGap;
         }
 
-        // Make the feedback view large enough to hold the blur bitmap.
-        mTouchFeedbackView.measure(
-                MeasureSpec.makeMeasureSpec(mCellWidth + mTouchFeedbackView.getExtraSize(),
-                        MeasureSpec.EXACTLY),
-                MeasureSpec.makeMeasureSpec(mCellHeight + mTouchFeedbackView.getExtraSize(),
-                        MeasureSpec.EXACTLY));
-
         mShortcutsAndWidgets.measure(
                 MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY),
                 MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY));
@@ -636,22 +600,9 @@ public class CellLayout extends ViewGroup {
         int left = getPaddingLeft() + (int) Math.ceil(offset / 2f);
         int top = getPaddingTop();
 
-        mTouchFeedbackView.layout(left, top,
-                left + mTouchFeedbackView.getMeasuredWidth(),
-                top + mTouchFeedbackView.getMeasuredHeight());
         mShortcutsAndWidgets.layout(left, top,
                 left + r - l,
                 top + b - t);
-    }
-
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-
-        // Expand the background drawing bounds by the padding baked into the background drawable
-        mBackground.getPadding(mTempRect);
-        mBackground.setBounds(-mTempRect.left, -mTempRect.top,
-                w + mTempRect.right, h + mTempRect.bottom);
     }
 
     @Override
@@ -664,21 +615,6 @@ public class CellLayout extends ViewGroup {
         mShortcutsAndWidgets.setChildrenDrawnWithCacheEnabled(enabled);
     }
 
-    public float getBackgroundAlpha() {
-        return mBackgroundAlpha;
-    }
-
-    public void setBackgroundAlpha(float alpha) {
-        if (mBackgroundAlpha != alpha) {
-            mBackgroundAlpha = alpha;
-            mBackground.setAlpha((int) (mBackgroundAlpha * 255));
-        }
-    }
-
-    @Override
-    protected boolean verifyDrawable(Drawable who) {
-        return super.verifyDrawable(who) || (mIsDragTarget && who == mBackground);
-    }
 
     public void setShortcutAndWidgetAlpha(float alpha) {
         mShortcutsAndWidgets.setAlpha(alpha);
@@ -2234,8 +2170,6 @@ public class CellLayout extends ViewGroup {
     void onDropChild(View child) {
         mOutlineBitmap = null;
         if (child != null) {
-            LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            lp.dropped = true;
             child.requestLayout();
         }
 
@@ -2394,8 +2328,6 @@ public class CellLayout extends ViewGroup {
         // Y coordinate of the view in the layout.
         @ViewDebug.ExportedProperty
         int y;
-
-        boolean dropped;
 
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
