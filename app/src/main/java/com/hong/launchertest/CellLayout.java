@@ -2219,6 +2219,7 @@ public class CellLayout extends ViewGroup {
     public void markCellsAsUnoccupiedForView(View view) {
         if (view == null || view.getParent() != mShortcutsAndWidgets) return;
         LayoutParams lp = (LayoutParams) view.getLayoutParams();
+        Log.d(TAG, "markCellsAsUnoccupiedForView: ");
         markCellsForView(lp.cellX, lp.cellY, lp.cellHSpan, lp.cellVSpan, mOccupied, false);
     }
 
@@ -2228,6 +2229,7 @@ public class CellLayout extends ViewGroup {
         for (int x = cellX; x < cellX + spanX && x < mCountX; x++) {
             for (int y = cellY; y < cellY + spanY && y < mCountY; y++) {
                 occupied[x][y] = value;
+                Log.d(TAG, "markCellsForView: x="+x +" y="+y+" value="+value);
             }
         }
     }

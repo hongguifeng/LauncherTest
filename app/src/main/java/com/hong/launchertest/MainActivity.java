@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTextView = (TextView) findViewById(R.id.hello_tv);
         mDragLayer = (DragLayer) findViewById(R.id.drag_layer);
         mCellLayout = (CellLayout) findViewById(R.id.cell_layout);
 
@@ -46,7 +45,6 @@ public class MainActivity extends AppCompatActivity
         mDragController.addDropTarget(this);
         mDragLayer.setup(mDragController);
 
-        mTextView.setOnLongClickListener(this);
         int i = 0;
         for(int x=0; x<3; x++){
             for(int y=0; y<4; y++){
@@ -68,6 +66,8 @@ public class MainActivity extends AppCompatActivity
     public boolean onLongClick(View v) {
 
         mCellLayout.prepareChildForDrag(v);
+        v.setVisibility(View.INVISIBLE);
+        mTextView = (TextView) v;
 
         AtomicInteger padding = new AtomicInteger(2);
         final Bitmap b = createDragBitmap(v, padding);
@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity
         int[] resultSpan = new int[2];
         int[] targetCell = new int[2];
         mCellLayout.performReorder( (int)f[0], (int)f[1], 1,
-                1, 1, 1, dragObject.dragView, targetCell, resultSpan, CellLayout.MODE_DRAG_OVER);
+                1, 1, 1, mTextView, targetCell, resultSpan, CellLayout.MODE_ON_DROP);
 
         dragObject.dragView.remove();
     }
@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity
         int[] resultSpan = new int[2];
         int[] targetCell = new int[2];
         mCellLayout.performReorder( (int)f[0], (int)f[1], 1,
-                1, 1, 1, dragObject.dragView, targetCell, resultSpan, CellLayout.MODE_DRAG_OVER);
+                1, 1, 1, mTextView, targetCell, resultSpan, CellLayout.MODE_DRAG_OVER);
 
         mCellLayout.visualizeDropLocation(null, mOutlineBitmap,
                 1, 1,
