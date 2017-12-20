@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity
         mDragLayer.setup(mDragController);
 
         int i = 0;
-        for(int x=0; x<3; x++){
+        for(int x=0; x<2; x++){
             for(int y=0; y<4; y++){
                 TextView tv= new TextView(this);
                 Drawable da = getDrawable(R.mipmap.ic_launcher_round);
@@ -59,6 +59,10 @@ public class MainActivity extends AppCompatActivity
                 i++;
             }
         }
+        WidgetLayout widgetLayout = new WidgetLayout(this);
+        widgetLayout.setOnLongClickListener(this);
+        CellLayout.LayoutParams lp = new CellLayout.LayoutParams(0, 2, 1, 2);
+        mCellLayout.addViewToCellLayout(widgetLayout, i,i, lp, true);
 
     }
 
@@ -178,18 +182,20 @@ public class MainActivity extends AppCompatActivity
         float[] f = dragObject.getVisualCenter(null);
         Log.d(TAG, "onDrop: " + f[0] + " " + f[1]);
 
+        CellLayout.LayoutParams lp = (CellLayout.LayoutParams) mView.getLayoutParams();
+
         int[] resultSpan = new int[2];
         int[] targetCell = new int[2];
 	    targetCell =  mCellLayout.performReorder( (int)dragObject.x, (int)dragObject.y, 1,
-                1, 1, 1, mView, targetCell, resultSpan, CellLayout.MODE_ON_DROP);
+                1, lp.cellHSpan, lp.cellVSpan, mView, targetCell, resultSpan, CellLayout.MODE_ON_DROP);
 	    Log.d(TAG, "onDrop: targetCell " + targetCell[0] + " " + targetCell[1]);
-	    CellLayout.LayoutParams lp = (CellLayout.LayoutParams) mView.getLayoutParams();
 	    lp.cellX = lp.tmpCellX = targetCell[0];
 	    lp.cellY = lp.tmpCellY = targetCell[1];
         lp.isLockedToGrid = true;
 
         dragObject.dragView.remove();
         mView.setVisibility(View.VISIBLE);
+        mCellLayout.clearDragOutlines();
     }
 
     @Override
@@ -202,11 +208,12 @@ public class MainActivity extends AppCompatActivity
 //        Log.d(TAG, "onDragOver: " + dragObject);
         float[] f = dragObject.getVisualCenter(null);
 //        Log.d(TAG, "onDrop: " + f[0] + " " + f[1]);
+        CellLayout.LayoutParams lp = (CellLayout.LayoutParams) mView.getLayoutParams();
 
         int[] resultSpan = new int[2];
         int[] targetCell = new int[2];
         mCellLayout.performReorder( (int)dragObject.x, (int)dragObject.y, 1,
-                1, 1, 1, mView, targetCell, resultSpan, CellLayout.MODE_DRAG_OVER);
+                1, lp.cellHSpan, lp.cellVSpan,  mView, targetCell, resultSpan, CellLayout.MODE_DRAG_OVER);
 
         mCellLayout.visualizeDropLocation(null, mOutlineBitmap,
                 1, 1,

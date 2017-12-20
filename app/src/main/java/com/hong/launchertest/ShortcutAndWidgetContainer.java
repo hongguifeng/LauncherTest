@@ -147,10 +147,10 @@ public class ShortcutAndWidgetContainer extends ViewGroup {
 //                // Widgets have their own padding, so skip
 //            } else {
                 // Otherwise, center the icon
-            int cHeight = getCellContentHeight();
-            int cellPaddingY = (int) Math.max(0, ((lp.height - cHeight) / 2f));
-            int cellPaddingX = (int) (edgeMarginPx / 2f);
-            child.setPadding(cellPaddingX, cellPaddingY, cellPaddingX, 0);
+//            int cHeight = getCellContentHeight();
+//            int cellPaddingY = (int) Math.max(0, ((lp.height - cHeight) / 2f));
+//            int cellPaddingX = (int) (edgeMarginPx / 2f);
+//            child.setPadding(cellPaddingX, cellPaddingY, cellPaddingX, 0);
 //            }
         } else {
             lp.x = 0;
