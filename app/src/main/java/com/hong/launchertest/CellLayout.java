@@ -57,8 +57,7 @@ public class CellLayout extends ViewGroup {
 
 //    private Launcher mLauncher;
     @Thunk int mCellWidth;
-    @Thunk
-    int mCellHeight;
+    @Thunk int mCellHeight;
     private int mFixedCellWidth;
     private int mFixedCellHeight;
 
@@ -1732,13 +1731,18 @@ public class CellLayout extends ViewGroup {
             View child = mShortcutsAndWidgets.getChildAt(i);
             LayoutParams lp = (LayoutParams) child.getLayoutParams();
             ItemInfo info = (ItemInfo) child.getTag();
+            Log.d(TAG, "commitTempPlacement: info = " + info);
             // We do a null check here because the item info can be null in the case of the
             // AllApps button in the hotseat.
+            lp.cellX = lp.tmpCellX;
+            lp.cellY = lp.tmpCellY;
             if (info != null) {
                 if (info.cellX != lp.tmpCellX || info.cellY != lp.tmpCellY ||
                         info.spanX != lp.cellHSpan || info.spanY != lp.cellVSpan) {
                     info.requiresDbUpdate = true;
                 }
+                Log.d(TAG, "commitTempPlacement: i=" +i +" tmpCellX=" +lp.tmpCellX
+                        + " tmpCellY=" + lp.tmpCellY);
                 info.cellX = lp.cellX = lp.tmpCellX;
                 info.cellY = lp.cellY = lp.tmpCellY;
                 info.spanX = lp.cellHSpan;
@@ -2229,7 +2233,7 @@ public class CellLayout extends ViewGroup {
         for (int x = cellX; x < cellX + spanX && x < mCountX; x++) {
             for (int y = cellY; y < cellY + spanY && y < mCountY; y++) {
                 occupied[x][y] = value;
-                Log.d(TAG, "markCellsForView: x="+x +" y="+y+" value="+value);
+//                Log.d(TAG, "markCellsForView: x="+x +" y="+y+" value="+value);
             }
         }
     }

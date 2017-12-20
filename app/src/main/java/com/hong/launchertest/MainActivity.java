@@ -13,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,7 +23,7 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "MainActivity";
 
     private DragLayer mDragLayer;
-    private TextView mTextView;
+    private View mView;
     private CellLayout mCellLayout;
     private Bitmap mOutlineBitmap;
 
@@ -51,6 +50,7 @@ public class MainActivity extends AppCompatActivity
                 TextView tv= new TextView(this);
                 Drawable da = getDrawable(R.mipmap.ic_launcher_round);
                 tv.setText(String.valueOf(i));
+                tv.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
                 da.setBounds(0, 0, da.getIntrinsicWidth(), da.getIntrinsicHeight());
                 tv.setCompoundDrawables(null,da,null,null);
                 tv.setOnLongClickListener(this);
@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity
 
         mCellLayout.prepareChildForDrag(v);
         v.setVisibility(View.INVISIBLE);
-        mTextView = (TextView) v;
+        mView =  v;
 
         AtomicInteger padding = new AtomicInteger(2);
         final Bitmap b = createDragBitmap(v, padding);
@@ -86,16 +86,8 @@ public class MainActivity extends AppCompatActivity
         Bitmap b;
 
         int padding = expectedPadding.get();
-        if (v instanceof TextView) {
-            Drawable d = getTextViewIcon((TextView) v);
-            Rect bounds = getDrawableBounds(d);
-            b = Bitmap.createBitmap(bounds.width() + padding,
-                    bounds.height() + padding, Bitmap.Config.ARGB_8888);
-            expectedPadding.set(padding - bounds.left - bounds.top);
-        } else {
-            b = Bitmap.createBitmap(
-                    v.getWidth() + padding, v.getHeight() + padding, Bitmap.Config.ARGB_8888);
-        }
+        b = Bitmap.createBitmap(
+                v.getWidth() + padding, v.getHeight() + padding, Bitmap.Config.ARGB_8888);
 
         mCanvas.setBitmap(b);
         drawDragView(v, mCanvas, padding);
@@ -109,13 +101,11 @@ public class MainActivity extends AppCompatActivity
         v.getDrawingRect(clipRect);
 
         destCanvas.save();
-        if (v instanceof TextView) {
-            Drawable d = getTextViewIcon((TextView) v);
-            Rect bounds = getDrawableBounds(d);
-            clipRect.set(0, 0, bounds.width() + padding, bounds.height() + padding);
-            destCanvas.translate(padding / 2 - bounds.left, padding / 2 - bounds.top);
-            d.draw(destCanvas);
-        }
+
+        destCanvas.translate(-v.getScrollX() + padding / 2, -v.getScrollY() + padding / 2);
+        destCanvas.clipRect(clipRect, Region.Op.REPLACE);
+        v.draw(destCanvas);
+
         destCanvas.restore();
     }
 
@@ -190,10 +180,16 @@ public class MainActivity extends AppCompatActivity
 
         int[] resultSpan = new int[2];
         int[] targetCell = new int[2];
-        mCellLayout.performReorder( (int)f[0], (int)f[1], 1,
-                1, 1, 1, mTextView, targetCell, resultSpan, CellLayout.MODE_ON_DROP);
+	    targetCell =  mCellLayout.performReorder( (int)dragObject.x, (int)dragObject.y, 1,
+                1, 1, 1, mView, targetCell, resultSpan, CellLayout.MODE_ON_DROP);
+	    Log.d(TAG, "onDrop: targetCell " + targetCell[0] + " " + targetCell[1]);
+	    CellLayout.LayoutParams lp = (CellLayout.LayoutParams) mView.getLayoutParams();
+	    lp.cellX = lp.tmpCellX = targetCell[0];
+	    lp.cellY = lp.tmpCellY = targetCell[1];
+        lp.isLockedToGrid = true;
 
         dragObject.dragView.remove();
+        mView.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -205,17 +201,17 @@ public class MainActivity extends AppCompatActivity
     public void onDragOver(DragObject dragObject) {
 //        Log.d(TAG, "onDragOver: " + dragObject);
         float[] f = dragObject.getVisualCenter(null);
-        Log.d(TAG, "onDrop: " + f[0] + " " + f[1]);
+//        Log.d(TAG, "onDrop: " + f[0] + " " + f[1]);
 
         int[] resultSpan = new int[2];
         int[] targetCell = new int[2];
-        mCellLayout.performReorder( (int)f[0], (int)f[1], 1,
-                1, 1, 1, mTextView, targetCell, resultSpan, CellLayout.MODE_DRAG_OVER);
+        mCellLayout.performReorder( (int)dragObject.x, (int)dragObject.y, 1,
+                1, 1, 1, mView, targetCell, resultSpan, CellLayout.MODE_DRAG_OVER);
 
         mCellLayout.visualizeDropLocation(null, mOutlineBitmap,
                 1, 1,
                 targetCell[0], targetCell[1], resultSpan[0], resultSpan[1], false,
-                new Point(), new Rect());
+                null, null);
 
 //        dragObject.dragView.remove();
     }
